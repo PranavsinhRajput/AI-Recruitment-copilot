@@ -2,9 +2,9 @@ import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { FileText, HelpCircle, Wand2 } from "lucide-react";
 import { api } from "./api/client";
+import { Navbar } from "./components/Navbar";
 import { Sidebar } from "./components/Sidebar";
 import { useUploadState } from "./state/UploadContext";
-import { SectionId } from "./types";
 import { ChatbotView } from "./views/ChatbotView";
 import { ColdEmailView } from "./views/ColdEmailView";
 import { DashboardView } from "./views/DashboardView";
@@ -20,7 +20,7 @@ const pageMotion = {
 };
 
 export default function App() {
-  const [activeSection, setActiveSection] = useState<SectionId>("upload");
+  const [activeSection, setActiveSection] = useState("upload");
   const { resumeText, jdText } = useUploadState();
 
   function renderSection() {
@@ -38,6 +38,7 @@ export default function App() {
             buttonLabel="Analyze My Resume"
             icon={<FileText className="h-4 w-4" />}
             resultTitle="Resume Review"
+            cacheKey="resume-analysis"
             action={async () => {
               const response = await api.analyzeResume(resumeText);
               return response.analysis;
@@ -53,6 +54,7 @@ export default function App() {
             buttonLabel="Generate Cover Letter"
             icon={<Wand2 className="h-4 w-4" />}
             resultTitle="Cover Letter"
+            cacheKey="cover-letter"
             action={async () => {
               const response = await api.generateCoverLetter(resumeText, jdText);
               return response.coverLetter;
@@ -68,6 +70,7 @@ export default function App() {
             buttonLabel="Generate Questions"
             icon={<HelpCircle className="h-4 w-4" />}
             resultTitle="Questions"
+            cacheKey="interview-questions"
             action={async () => {
               const response = await api.generateInterviewQuestions(resumeText, jdText);
               return response.questions;
@@ -86,15 +89,18 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f5f7f8]">
-      <Sidebar activeSection={activeSection} onSelect={setActiveSection} />
-      <main className="ml-72 min-h-screen px-8 py-8">
-        <AnimatePresence mode="wait">
-          <motion.div key={activeSection} {...pageMotion}>
-            {renderSection()}
-          </motion.div>
-        </AnimatePresence>
-      </main>
+    <div className="min-h-screen bg-app text-ink transition-colors">
+      <Navbar />
+      <div className="flex min-h-[calc(100vh-5.5rem)]">
+        <Sidebar activeSection={activeSection} onSelect={setActiveSection} />
+        <main className="min-w-0 flex-1 px-8 py-8">
+          <AnimatePresence mode="wait">
+            <motion.div key={activeSection} {...pageMotion}>
+              {renderSection()}
+            </motion.div>
+          </AnimatePresence>
+        </main>
+      </div>
     </div>
   );
 }

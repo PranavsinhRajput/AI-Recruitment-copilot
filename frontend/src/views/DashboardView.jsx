@@ -25,7 +25,7 @@ export function DashboardView() {
         </div>
         <ActionButton onClick={handleRun} disabled={loading}>
           <BarChart3 className="h-4 w-4" />
-          {loading ? "Analyzing..." : "Run Full ATS Analysis"}
+          {loading ? "Analyzing..." : atsResult ? "Regenerate ATS Analysis" : "Run Full ATS Analysis"}
         </ActionButton>
       </div>
 
@@ -51,7 +51,7 @@ export function DashboardView() {
           </div>
         </div>
       ) : (
-        <div className="mt-8 rounded-md border border-slate-200 bg-white p-6 text-slate-600 shadow-soft">
+        <div className="mt-8 rounded-md border border-line bg-panel p-6 text-muted shadow-soft">
           Run the analysis to calculate keyword, semantic, experience, education, and format scores.
         </div>
       )}
@@ -59,16 +59,16 @@ export function DashboardView() {
   );
 }
 
-function Panel({ title, items, tone = "neutral" }: { title: string; items: string[]; tone?: "neutral" | "good" | "warn" }) {
+function Panel({ title, items, tone = "neutral" }) {
   const toneClass =
     tone === "good"
       ? "bg-emerald-50 text-emerald-800"
       : tone === "warn"
-        ? "bg-amber-50 text-amber-800"
-        : "bg-slate-50 text-slate-700";
+        ? "bg-softaccent text-ink"
+        : "bg-elevated text-muted";
 
   return (
-    <section className="rounded-md border border-slate-200 bg-white p-5 shadow-soft">
+    <section className="rounded-md border border-line bg-panel p-5 shadow-soft">
       <h3 className="text-lg font-semibold text-ink">{title}</h3>
       <div className="mt-4 flex flex-wrap gap-2">
         {items.map((item) => (

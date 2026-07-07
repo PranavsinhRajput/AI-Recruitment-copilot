@@ -11,15 +11,9 @@ import {
   Wand2,
 } from "lucide-react";
 import { motion } from "framer-motion";
-import { SectionId } from "../types";
 import { useUploadState } from "../state/UploadContext";
 
-const sections: Array<{
-  id: SectionId;
-  label: string;
-  locked: boolean;
-  icon: typeof Upload;
-}> = [
+const sections = [
   { id: "upload", label: "Upload Resume + JD", locked: false, icon: Upload },
   { id: "dashboard", label: "Dashboard", locked: true, icon: BarChart3 },
   { id: "resume-analysis", label: "Resume Analysis", locked: true, icon: FileText },
@@ -30,23 +24,18 @@ const sections: Array<{
   { id: "chatbot", label: "AI Chatbot", locked: true, icon: Bot },
 ];
 
-type Props = {
-  activeSection: SectionId;
-  onSelect: (section: SectionId) => void;
-};
-
-export function Sidebar({ activeSection, onSelect }: Props) {
+export function Sidebar({ activeSection, onSelect }) {
   const { isReady, isResumeUploaded, isJDUploaded } = useUploadState();
 
   return (
-    <aside className="fixed left-0 top-0 z-20 flex h-screen w-72 flex-col border-r border-slate-200 bg-ink px-4 py-5 text-white">
-      <div className="mb-7">
-        <p className="text-xs font-semibold uppercase tracking-widest text-mint">AI Recruitment</p>
-        <h1 className="mt-1 text-2xl font-bold tracking-normal">Copilot</h1>
+    <aside className="sticky top-[5.5rem] z-20 flex h-[calc(100vh-5.5rem)] w-72 shrink-0 flex-col border-r border-line bg-slatepanel px-4 py-5 text-ink shadow-soft transition-colors">
+      <div className="mb-6 border-b border-line pb-5">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-mint">Workspace</p>
+        <p className="mt-2 text-sm leading-6 text-muted">Upload once, then move through each hiring workflow without losing progress.</p>
       </div>
 
-      <div className="mb-5 rounded-md bg-white/8 p-3">
-        <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-slate-300">Upload status</p>
+      <div className="mb-5 rounded-md border border-line bg-elevated p-3">
+        <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-mint">Upload status</p>
         <StatusRow label="Resume" done={isResumeUploaded} />
         <StatusRow label="Job Description" done={isJDUploaded} />
       </div>
@@ -67,7 +56,7 @@ export function Sidebar({ activeSection, onSelect }: Props) {
               transition={{ duration: 0.22, ease: "easeOut" }}
               whileHover={locked ? undefined : { scale: 1.02 }}
               className={`flex min-h-11 items-center gap-3 rounded-md px-3 py-2 text-left text-sm font-medium transition ${
-                selected ? "bg-mint text-white" : "text-slate-200 hover:bg-white/10"
+                selected ? "bg-mint text-white shadow-button" : "text-muted hover:bg-elevated hover:text-ink"
               } ${locked ? "pointer-events-none grayscale" : ""}`}
             >
               <Icon className="h-4 w-4 shrink-0" />
@@ -81,16 +70,16 @@ export function Sidebar({ activeSection, onSelect }: Props) {
   );
 }
 
-function StatusRow({ label, done }: { label: string; done: boolean }) {
+function StatusRow({ label, done }) {
   return (
     <div className="flex items-center justify-between py-1 text-sm">
-      <span className={done ? "text-white" : "text-slate-400"}>{label}</span>
+      <span className={done ? "text-ink" : "text-muted"}>{label}</span>
       <motion.span
         animate={{
-          backgroundColor: done ? "#15a47f" : "rgba(148, 163, 184, 0.25)",
-          color: done ? "#ffffff" : "#94a3b8",
+          backgroundColor: done ? "var(--color-accent)" : "var(--color-panel)",
+          color: done ? "#ffffff" : "var(--color-muted)",
         }}
-        className="grid h-5 w-5 place-items-center rounded-full"
+        className="grid h-5 w-5 place-items-center rounded-full border border-line"
       >
         {done ? <Check className="h-3.5 w-3.5" /> : null}
       </motion.span>

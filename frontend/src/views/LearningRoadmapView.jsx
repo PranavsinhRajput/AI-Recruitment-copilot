@@ -10,7 +10,7 @@ export function LearningRoadmapView() {
   return (
     <div>
       {!atsResult ? (
-        <div className="rounded-md border border-amber-200 bg-amber-50 p-5 text-sm text-amber-900">
+        <div className="mb-6 rounded-md border border-line bg-softaccent p-5 text-sm text-ink">
           Run ATS Analysis from the Dashboard first so the roadmap can use your missing skills.
         </div>
       ) : null}
@@ -21,6 +21,7 @@ export function LearningRoadmapView() {
         buttonLabel="Generate Roadmap"
         icon={<Map className="h-4 w-4" />}
         resultTitle="30-Day Roadmap"
+        cacheKey="learning-roadmap"
         action={async () => {
           const response = await api.generateRoadmap(missingSkills);
           return response.roadmap;

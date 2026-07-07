@@ -4,7 +4,7 @@ export function useAsyncAction() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  async function run<T>(action: () => Promise<T>): Promise<T | null> {
+  async function run(action) {
     setLoading(true);
     setError("");
     try {
