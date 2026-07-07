@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { FileText, HelpCircle, Wand2 } from "lucide-react";
 import { api } from "./api/client";
@@ -21,6 +21,15 @@ const pageMotion = {
 export default function App() {
   const [activeSection, setActiveSection] = useState("upload");
   const { resumeText, jdText } = useUploadState();
+
+  useEffect(() => {
+    api.ping();
+    const intervalId = window.setInterval(() => {
+      api.ping();
+    }, 10 * 60 * 1000);
+
+    return () => window.clearInterval(intervalId);
+  }, []);
 
   function renderSection() {
     switch (activeSection) {

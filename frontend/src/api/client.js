@@ -24,6 +24,16 @@ async function request(path, options) {
 }
 
 export const api = {
+  async ping() {
+    try {
+      await fetch(`${API_BASE_URL}/health`, {
+        method: "GET",
+        cache: "no-store",
+      });
+    } catch {
+      // Keep-alive pings should never interrupt the user experience.
+    }
+  },
   uploadResume(file) {
     const formData = new FormData();
     formData.append("file", file);
