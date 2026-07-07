@@ -6,7 +6,6 @@ import { Navbar } from "./components/Navbar";
 import { Sidebar } from "./components/Sidebar";
 import { useUploadState } from "./state/UploadContext";
 import { ChatbotView } from "./views/ChatbotView";
-import { ColdEmailView } from "./views/ColdEmailView";
 import { DashboardView } from "./views/DashboardView";
 import { GeneratedTextView } from "./views/GeneratedTextView";
 import { LearningRoadmapView } from "./views/LearningRoadmapView";
@@ -79,8 +78,6 @@ export default function App() {
         );
       case "learning-roadmap":
         return <LearningRoadmapView />;
-      case "cold-email":
-        return <ColdEmailView />;
       case "chatbot":
         return <ChatbotView />;
       default:

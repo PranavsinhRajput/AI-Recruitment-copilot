@@ -64,7 +64,7 @@ export function UploadView() {
             <h3 className="mt-5 text-xl font-semibold text-ink">Resume PDF</h3>
             <p className="mt-2 text-sm leading-6 text-muted">
               Upload a PDF resume so the backend can extract the text used across
-              analysis, scoring, cover letters, chat, and email outreach.
+              analysis, scoring, cover letters, interview prep, and chat.
             </p>
           </div>
           <div>

@@ -2,7 +2,7 @@
 
 AI Recruitment Copilot helps job seekers compare a resume against a job description,
 calculate ATS fit, generate application materials, prepare for interviews, build a
-learning roadmap, and automate recruiter outreach.
+learning roadmap, and chat with an AI career assistant.
 
 ## Features
 
@@ -14,7 +14,6 @@ learning roadmap, and automate recruiter outreach.
 | Cover Letter Generator | Creates a personalized cover letter from the resume and JD. |
 | Interview Questions | Generates technical and behavioral interview questions. |
 | Learning Roadmap | Builds a 30-day plan from missing skills after ATS analysis. |
-| Cold Email Sender | Previews and sends personalized Gmail outreach to recruiters from an XLSX file. |
 | AI Chatbot | Answers career, resume, ATS, and interview questions using the uploaded context. |
 
 ## Tech Stack
@@ -26,8 +25,7 @@ learning roadmap, and automate recruiter outreach.
 | AI | Groq API with LLaMA 3.3 70B |
 | Embeddings | Sentence Transformers `all-MiniLM-L6-v2` |
 | Vector Store | Qdrant in-memory client |
-| Parsing | pdfplumber, pandas, openpyxl |
-| Email | Gmail SMTP via `smtplib` |
+| Parsing | pdfplumber |
 
 ## Project Structure
 
@@ -37,7 +35,6 @@ AI-Recruitment-Copilot/
 ├── api/
 │   └── main.py
 ├── ats/
-├── cold_email/
 ├── cover_letter/
 ├── data/
 │   └── uploads/
@@ -109,7 +106,7 @@ are successfully processed by the backend.
 After both are ready:
 
 1. Run Dashboard / ATS Analysis to calculate scores and missing skills.
-2. Use Resume Analysis, Cover Letter, Interview Questions, Chatbot, or Cold Email Sender.
+2. Use Resume Analysis, Cover Letter, Interview Questions, or Chatbot.
 3. Run Learning Roadmap after ATS Analysis so it can use the missing skills list.
 
 ## API Routes
@@ -125,15 +122,3 @@ After both are ready:
 | POST | `/api/interview-questions` | Generate interview questions. |
 | POST | `/api/roadmap` | Generate learning roadmap. |
 | POST | `/api/chat` | Ask the AI career chatbot. |
-| POST | `/api/recruiters/preview` | Upload XLSX and preview recruiter email. |
-| POST | `/api/cold-emails/send` | Send recruiter emails through Gmail SMTP. |
-
-## Cold Email Sender
-
-The recruiter workbook must be an `.xlsx` file with these columns:
-
-| S.No | Company Name | HR / Contact Person | Email ID |
-| --- | --- | --- | --- |
-| 1 | ExampleCo | Jane Doe | jane@example.com |
-
-Use a Gmail App Password, not your normal Gmail password.

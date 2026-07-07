@@ -1,8 +1,7 @@
-import json
 from pathlib import Path
 from typing import Any
 
-from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
@@ -10,7 +9,6 @@ from agents.resume_agent import resume_agent
 from agents.router_agent import router_agent
 from ats.ats_score import calculate_ats_score
 from ats.skill_extractor import extract_skills, extract_text_from_pdf
-from cold_email.sender import generate_email_body, load_recruiters, send_cold_emails
 from cover_letter.generator import generate_cover_letter
 from rag.qdrant_store import create_collection, store_document
 from roadmap.roadmap_generator import generate_interview_questions, generate_roadmap
@@ -63,24 +61,6 @@ def require_text(value: str, label: str) -> str:
     if not cleaned:
         raise HTTPException(status_code=400, detail=f"{label} is required.")
     return cleaned
-
-
-def parse_skills(raw: str | None) -> list[str]:
-    if not raw:
-        return []
-    try:
-        parsed = json.loads(raw)
-    except json.JSONDecodeError as exc:
-        raise HTTPException(status_code=400, detail="resumeSkills must be valid JSON.") from exc
-    if not isinstance(parsed, list):
-        raise HTTPException(status_code=400, detail="resumeSkills must be a list.")
-    return [str(skill) for skill in parsed]
-
-
-def dataframe_records(df: Any) -> list[dict[str, Any]]:
-    columns = ["Company Name", "HR / Contact Person", "Email ID"]
-    safe_df = df[columns].fillna("")
-    return safe_df.to_dict(orient="records")
 
 
 async def save_upload(file: UploadFile, filename: str) -> Path:
@@ -181,55 +161,3 @@ def chat(payload: ChatRequest) -> dict[str, str]:
         missing_skills=payload.missingSkills,
     )
     return {"answer": answer}
-
-
-@app.post("/api/recruiters/preview")
-async def recruiters_preview(
-    file: UploadFile = File(...),
-    resumeSkills: str = Form("[]"),
-) -> dict[str, Any]:
-    if not file.filename.lower().endswith(".xlsx"):
-        raise HTTPException(status_code=400, detail="Recruiter file must be an XLSX file.")
-
-    path = await save_upload(file, "recruiters.xlsx")
-    skills = parse_skills(resumeSkills)
-    df = load_recruiters(path)
-    preview = ""
-    if len(df) > 0:
-        row = df.iloc[0]
-        preview = generate_email_body(
-            row["HR / Contact Person"],
-            row["Company Name"],
-            skills,
-        )
-    return {
-        "count": len(df),
-        "recruiters": dataframe_records(df),
-        "preview": preview,
-    }
-
-
-@app.post("/api/cold-emails/send")
-async def send_emails(
-    file: UploadFile = File(...),
-    senderEmail: str = Form(...),
-    appPassword: str = Form(...),
-    delay: int = Form(30),
-    resumeSkills: str = Form("[]"),
-) -> dict[str, Any]:
-    if not file.filename.lower().endswith(".xlsx"):
-        raise HTTPException(status_code=400, detail="Recruiter file must be an XLSX file.")
-
-    sender_email = require_text(senderEmail, "Sender email")
-    app_password = require_text(appPassword, "Gmail app password")
-    path = await save_upload(file, "recruiters.xlsx")
-    skills = parse_skills(resumeSkills)
-    results, total = send_cold_emails(
-        str(path),
-        str(UPLOAD_DIR / "resume.pdf"),
-        sender_email,
-        app_password,
-        skills,
-        delay,
-    )
-    return {"results": results, "total": total}

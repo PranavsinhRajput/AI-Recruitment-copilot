@@ -5,7 +5,6 @@ import {
   FileText,
   HelpCircle,
   Lock,
-  Mail,
   Map,
   Upload,
   Wand2,
@@ -20,7 +19,6 @@ const sections = [
   { id: "cover-letter", label: "Cover Letter", locked: true, icon: Wand2 },
   { id: "interview-questions", label: "Interview Questions", locked: true, icon: HelpCircle },
   { id: "learning-roadmap", label: "Learning Roadmap", locked: true, icon: Map },
-  { id: "cold-email", label: "Cold Email Sender", locked: true, icon: Mail },
   { id: "chatbot", label: "AI Chatbot", locked: true, icon: Bot },
 ];
 
