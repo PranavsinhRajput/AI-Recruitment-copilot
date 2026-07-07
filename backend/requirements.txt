@@ -6,6 +6,5 @@ langchain
 langchain-community
 pdfplumber
 qdrant-client
-sentence-transformers
 python-dotenv
 tiktoken

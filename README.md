@@ -45,6 +45,9 @@ Create `backend/.env`:
 
 ```bash
 GROQ_API_KEY=your-groq-api-key-here
+HF_API_TOKEN=your-hugging-face-token-here
+HF_EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2
+HF_EMBEDDING_DIM=384
 QDRANT_HOST=localhost
 QDRANT_PORT=6333
 ```

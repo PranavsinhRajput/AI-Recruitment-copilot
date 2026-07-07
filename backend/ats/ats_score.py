@@ -1,21 +1,104 @@
-from sentence_transformers import SentenceTransformer, util
+import json
+import os
 import re
 
-_model = None
+from groq import Groq
+from utils.env import load_project_env
+
+load_project_env()
+client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 
-def get_model():
-    global _model
-    if _model is None:
-        _model = SentenceTransformer("all-MiniLM-L6-v2")
-    return _model
+def compact_text(text, max_chars=1800):
+    cleaned = re.sub(r'\s+', ' ', text).strip()
+    return cleaned[:max_chars]
 
-def semantic_similarity(resume_text, jd_text):
-    model = get_model()
-    resume_embedding = model.encode(resume_text, convert_to_tensor=True)
-    jd_embedding = model.encode(jd_text, convert_to_tensor=True)
-    similarity = util.cos_sim(resume_embedding, jd_embedding)
-    return round(float(similarity) * 100, 2)
+
+def extract_relevant_lines(text, keywords, max_chars=1800):
+    lines = [line.strip() for line in text.splitlines() if line.strip()]
+    selected = []
+    lowered_keywords = [keyword.lower() for keyword in keywords]
+
+    for line in lines:
+        lower_line = line.lower()
+        if any(keyword in lower_line for keyword in lowered_keywords):
+            selected.append(line)
+
+    if not selected:
+        return compact_text(text, max_chars=max_chars)
+
+    return compact_text("\n".join(selected), max_chars=max_chars)
+
+
+def clamp_score(value):
+    try:
+        score = float(value)
+    except (TypeError, ValueError):
+        return 0
+    return max(0, min(100, round(score, 2)))
+
+
+def semantic_similarity(resume_text, jd_text, resume_skills=None, jd_skills=None):
+    resume_skills = resume_skills or []
+    jd_skills = jd_skills or []
+
+    candidate_profile = f"""
+Skills: {", ".join(resume_skills[:40])}
+Relevant resume lines:
+{extract_relevant_lines(
+    resume_text,
+    ["summary", "experience", "project", "skills", "education", "intern", "developer", "engineer"],
+    max_chars=2200,
+)}
+"""
+
+    job_profile = f"""
+Required skills: {", ".join(jd_skills[:40])}
+Relevant job description lines:
+{extract_relevant_lines(
+    jd_text,
+    ["require", "responsib", "skill", "qualification", "experience", "education", "role", "developer", "engineer"],
+    max_chars=2200,
+)}
+"""
+
+    prompt = f"""You are an ATS semantic matcher.
+Compare the candidate profile and job profile for role fit.
+Do not score only exact keyword overlap. Consider:
+- related technologies
+- project relevance
+- responsibility alignment
+- domain fit
+- seniority fit
+
+Return ONLY valid JSON in this exact shape:
+{{"semantic_score": 0}}
+
+The score must be a number from 0 to 100.
+
+Candidate Profile:
+{candidate_profile[:2600]}
+
+Job Profile:
+{job_profile[:2600]}
+"""
+
+    try:
+        response = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0,
+            max_tokens=40,
+        )
+        raw = response.choices[0].message.content.strip()
+        parsed = json.loads(raw)
+        return clamp_score(parsed.get("semantic_score"))
+    except Exception:
+        resume_set = set(s.lower() for s in resume_skills)
+        jd_set = set(s.lower() for s in jd_skills)
+        if not jd_set:
+            return 0
+        return round((len(resume_set.intersection(jd_set)) / len(jd_set)) * 100, 2)
 
 def extract_years_required(jd_text):
     patterns = [
@@ -134,7 +217,7 @@ def calculate_ats_score(resume_skills, jd_skills, resume_text="", jd_text=""):
     keyword_score = round((len(matched) / len(jd_set)) * 100) if jd_set else 0
 
     if resume_text and jd_text:
-        semantic_score = semantic_similarity(resume_text, jd_text)
+        semantic_score = semantic_similarity(resume_text, jd_text, resume_skills, jd_skills)
         experience_score, experience_msg = check_experience_match(resume_text, jd_text)
         education_score, education_msg = check_education_match(resume_text, jd_text)
         format_score, format_issues, format_suggestions = check_resume_format(resume_text)

@@ -6,11 +6,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from agents.resume_agent import resume_agent
-from agents.router_agent import router_agent
 from ats.ats_score import calculate_ats_score
 from ats.skill_extractor import extract_skills, extract_text_from_pdf
 from cover_letter.generator import generate_cover_letter
 from rag.qdrant_store import create_collection, store_document
+from rag.retriever import ask_with_direct_context, ask_with_rag
 from roadmap.roadmap_generator import generate_interview_questions, generate_roadmap
 
 
@@ -149,15 +149,21 @@ def roadmap(payload: RoadmapRequest) -> dict[str, str]:
 @app.post("/api/chat")
 def chat(payload: ChatRequest) -> dict[str, str]:
     query = require_text(payload.query, "Query")
-    create_collection()
-    if payload.resumeText.strip():
-        store_document(payload.resumeText, {"type": "resume"})
-    if payload.jdText.strip():
-        store_document(payload.jdText, {"type": "jd"})
-    answer = router_agent(
-        query,
-        resume_text=payload.resumeText,
-        jd_text=payload.jdText,
-        missing_skills=payload.missingSkills,
-    )
+    try:
+        create_collection()
+        if payload.resumeText.strip():
+            store_document(payload.resumeText, {"type": "resume"})
+        if payload.jdText.strip():
+            store_document(payload.jdText, {"type": "jd"})
+        answer = ask_with_rag(
+            query,
+            missing_skills=payload.missingSkills,
+        )
+    except RuntimeError:
+        answer = ask_with_direct_context(
+            query,
+            resume_text=payload.resumeText,
+            jd_text=payload.jdText,
+            missing_skills=payload.missingSkills,
+        )
     return {"answer": answer}
