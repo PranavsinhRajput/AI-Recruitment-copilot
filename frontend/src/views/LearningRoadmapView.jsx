@@ -98,7 +98,7 @@ export function LearningRoadmapView() {
 
         {result ? (
           <div className="mt-7">
-            <ResultBlock title={`${dayCount}-Day Roadmap`} content={result} />
+            <ResultBlock title={`${dayCount}-Day Roadmap`} content={result} copyable />
           </div>
         ) : null}
       </div>
