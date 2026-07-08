@@ -71,7 +71,7 @@ async def save_upload(file: UploadFile, filename: str) -> Path:
     return path
 
 
-@app.get("/health")
+@app.api_route("/health", methods=["GET", "HEAD"])
 def health() -> dict[str, str]:
     return {"status": "ok"}
 
