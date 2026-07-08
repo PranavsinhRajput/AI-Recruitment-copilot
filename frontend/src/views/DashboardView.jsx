@@ -21,7 +21,7 @@ export function DashboardView() {
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <p className="text-sm font-semibold uppercase tracking-widest text-mint">ATS Score Calculator</p>
-          <h2 className="mt-2 text-3xl font-bold text-ink">Dashboard</h2>
+          <h2 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">Dashboard</h2>
         </div>
         <ActionButton onClick={handleRun} disabled={loading}>
           <BarChart3 className="h-4 w-4" />
@@ -33,7 +33,7 @@ export function DashboardView() {
 
       {atsResult ? (
         <div className="mt-7 space-y-6">
-          <div className="grid gap-4 md:grid-cols-5">
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
             <MetricCard label="Final Score" value={`${atsResult.ats_score}%`} />
             <MetricCard label="Keywords" value={`${atsResult.keyword_score}%`} />
             <MetricCard label="Semantic" value={`${atsResult.semantic_score}%`} />
@@ -64,7 +64,7 @@ function Panel({ title, items, tone = "neutral" }) {
     tone === "good"
       ? "bg-emerald-50 text-emerald-800"
       : tone === "warn"
-        ? "bg-softaccent text-ink"
+        ? "bg-softaccent text-ink dark:text-red-500"
         : "bg-elevated text-muted";
 
   return (

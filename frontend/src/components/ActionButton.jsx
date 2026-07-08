@@ -19,7 +19,7 @@ export function ActionButton({
       disabled={disabled}
       whileHover={disabled ? undefined : { y: -1, scale: 1.015 }}
       whileTap={disabled ? undefined : { scale: 0.965 }}
-      className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-md px-5 py-2.5 text-sm font-semibold tracking-[0.01em] transition disabled:cursor-not-allowed disabled:opacity-50 ${classes}`}
+      className={`inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-md px-5 py-2.5 text-sm font-semibold tracking-[0.01em] transition disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto ${classes}`}
     >
       {children}
     </motion.button>

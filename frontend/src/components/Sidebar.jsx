@@ -2,6 +2,8 @@ import {
   BarChart3,
   Bot,
   Check,
+  PanelLeftClose,
+  PanelLeftOpen,
   FileText,
   HelpCircle,
   Lock,
@@ -22,20 +24,57 @@ const sections = [
   { id: "chatbot", label: "AI Chatbot", locked: true, icon: Bot },
 ];
 
-export function Sidebar({ activeSection, onSelect }) {
+export function Sidebar({
+  activeSection,
+  onSelect,
+  collapsed = false,
+  mode = "desktop",
+  onToggleCollapse,
+}) {
   const { isReady, isResumeUploaded, isJDUploaded } = useUploadState();
+  const isCollapsed = mode === "desktop" && collapsed;
+  const CollapseIcon = isCollapsed ? PanelLeftOpen : PanelLeftClose;
 
   return (
-    <aside className="sticky top-[5.5rem] z-20 flex h-[calc(100vh-5.5rem)] w-72 shrink-0 flex-col border-r border-line bg-slatepanel px-4 py-5 text-ink shadow-soft transition-colors">
-      <div className="mb-6 border-b border-line pb-5">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-mint">Workspace</p>
-        <p className="mt-2 text-sm leading-6 text-muted">Upload once, then move through each hiring workflow without losing progress.</p>
+    <aside
+      className={`flex h-full w-full shrink-0 flex-col border-r border-line bg-slatepanel text-ink shadow-soft transition-colors ${
+        isCollapsed ? "px-3 py-5" : "px-4 py-5"
+      }`}
+    >
+      <div className={`mb-6 border-b border-line pb-5 ${isCollapsed ? "text-center" : ""}`}>
+        <div className={`flex items-start ${isCollapsed ? "justify-center" : "justify-between gap-3"}`}>
+          {!isCollapsed ? (
+            <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-mint">
+              Workspace
+            </p>
+          ) : null}
+          {mode === "desktop" ? (
+            <motion.button
+              type="button"
+              onClick={onToggleCollapse}
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.94 }}
+              className="grid h-8 w-8 shrink-0 place-items-center rounded-md border border-line bg-elevated text-muted shadow-soft transition hover:border-mint hover:text-mint"
+              aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+              title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+            >
+              <CollapseIcon className="h-4 w-4" />
+            </motion.button>
+          ) : null}
+        </div>
+        {!isCollapsed ? (
+          <p className="mt-2 text-sm leading-6 text-muted">
+            Upload once, then move through each hiring workflow without losing progress.
+          </p>
+        ) : null}
       </div>
 
-      <div className="mb-5 rounded-md border border-line bg-elevated p-3">
-        <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-mint">Upload status</p>
-        <StatusRow label="Resume" done={isResumeUploaded} />
-        <StatusRow label="Job Description" done={isJDUploaded} />
+      <div className={`mb-5 rounded-md border border-line bg-elevated p-3 ${isCollapsed ? "px-2" : ""}`}>
+        {!isCollapsed ? (
+          <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-mint">Upload status</p>
+        ) : null}
+        <StatusRow label="Resume" done={isResumeUploaded} collapsed={isCollapsed} />
+        <StatusRow label="Job Description" done={isJDUploaded} collapsed={isCollapsed} />
       </div>
 
       <nav className="flex flex-1 flex-col gap-1">
@@ -53,13 +92,14 @@ export function Sidebar({ activeSection, onSelect }) {
               animate={{ opacity: locked ? 0.38 : 1 }}
               transition={{ duration: 0.22, ease: "easeOut" }}
               whileHover={locked ? undefined : { scale: 1.02 }}
-              className={`flex min-h-11 items-center gap-3 rounded-md px-3 py-2 text-left text-sm font-medium transition ${
+              title={isCollapsed ? section.label : undefined}
+              className={`flex min-h-11 items-center rounded-md py-2 text-left text-sm font-medium transition ${
                 selected ? "bg-mint text-white shadow-button" : "text-muted hover:bg-elevated hover:text-ink"
-              } ${locked ? "pointer-events-none grayscale" : ""}`}
+              } ${isCollapsed ? "justify-center px-2" : "gap-3 px-3"} ${locked ? "pointer-events-none grayscale" : ""}`}
             >
               <Icon className="h-4 w-4 shrink-0" />
-              <span className="min-w-0 flex-1 truncate">{section.label}</span>
-              {locked ? <Lock className="h-3.5 w-3.5 shrink-0" /> : null}
+              {!isCollapsed ? <span className="min-w-0 flex-1 truncate">{section.label}</span> : null}
+              {locked && !isCollapsed ? <Lock className="h-3.5 w-3.5 shrink-0" /> : null}
             </motion.button>
           );
         })}
@@ -68,10 +108,15 @@ export function Sidebar({ activeSection, onSelect }) {
   );
 }
 
-function StatusRow({ label, done }) {
+function StatusRow({ label, done, collapsed = false }) {
   return (
-    <div className="flex items-center justify-between py-1 text-sm">
-      <span className={done ? "text-ink" : "text-muted"}>{label}</span>
+    <div
+      className={`flex items-center py-1 text-sm ${
+        collapsed ? "justify-center" : "justify-between"
+      }`}
+      title={collapsed ? `${label}: ${done ? "uploaded" : "missing"}` : undefined}
+    >
+      {!collapsed ? <span className={done ? "text-ink" : "text-muted"}>{label}</span> : null}
       <motion.span
         animate={{
           backgroundColor: done ? "var(--color-accent)" : "var(--color-panel)",

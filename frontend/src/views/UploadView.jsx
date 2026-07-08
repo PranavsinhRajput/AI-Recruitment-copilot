@@ -48,7 +48,7 @@ export function UploadView() {
   return (
     <div className="max-w-5xl">
       <p className="text-sm font-semibold uppercase tracking-widest text-mint">Start here</p>
-      <h2 className="mt-2 text-3xl font-bold text-ink">Upload Resume and Job Description</h2>
+      <h2 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">Upload Resume and Job Description</h2>
       <p className="mt-3 max-w-2xl text-muted">
         These two inputs unlock the rest of the copilot. The resume is parsed from PDF,
         and the job description is validated before the sidebar sections become active.
@@ -57,7 +57,7 @@ export function UploadView() {
       <div className="mt-8 grid gap-5 lg:grid-cols-2">
         <motion.label
           whileHover={{ scale: 1.01 }}
-          className="flex min-h-72 cursor-pointer flex-col justify-between rounded-md border border-dashed border-line bg-panel p-6 shadow-soft transition hover:border-mint"
+          className="flex min-h-72 cursor-pointer flex-col justify-between rounded-md border border-dashed border-line bg-panel p-5 shadow-soft transition hover:border-mint sm:p-6"
         >
           <div>
             <FileUp className="h-9 w-9 text-mint" />
@@ -71,14 +71,14 @@ export function UploadView() {
             <p className="mb-3 truncate text-sm font-medium text-muted">
               {resumeFileName || "No resume uploaded yet"}
             </p>
-            <span className="inline-flex rounded-md bg-gradient-to-b from-orange-400 to-orange-600 px-4 py-2.5 text-sm font-semibold text-white shadow-button">
+            <span className="inline-flex min-h-11 items-center rounded-md bg-gradient-to-b from-orange-400 to-orange-600 px-4 py-2.5 text-sm font-semibold text-white shadow-button">
               {loading === "resume" ? "Processing..." : "Choose PDF"}
             </span>
             <input type="file" accept="application/pdf" className="sr-only" onChange={handleResume} />
           </div>
         </motion.label>
 
-        <form onSubmit={handleJD} className="rounded-md border border-line bg-panel p-6 shadow-soft">
+        <form onSubmit={handleJD} className="rounded-md border border-line bg-panel p-5 shadow-soft sm:p-6">
           <h3 className="text-xl font-semibold text-ink">Job Description</h3>
           <textarea
             value={jdDraft}

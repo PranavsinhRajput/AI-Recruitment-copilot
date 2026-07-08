@@ -1,7 +1,34 @@
-export function ResultBlock({ title, content }) {
+import { Check, Copy } from "lucide-react";
+import { useState } from "react";
+import { motion } from "framer-motion";
+
+export function ResultBlock({ title, content, copyable = false }) {
+  const [copied, setCopied] = useState(false);
+
+  async function handleCopy() {
+    await navigator.clipboard.writeText(content);
+    setCopied(true);
+    window.setTimeout(() => setCopied(false), 1600);
+  }
+
   return (
     <div className="rounded-md border border-line bg-panel p-5 shadow-soft">
-      <h3 className="mb-3 text-lg font-semibold text-ink">{title}</h3>
+      <div className="mb-3 flex items-start justify-between gap-3">
+        <h3 className="text-lg font-semibold text-ink">{title}</h3>
+        {copyable ? (
+          <motion.button
+            type="button"
+            onClick={handleCopy}
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.94 }}
+            className="inline-flex min-h-9 items-center gap-2 rounded-md border border-line bg-elevated px-3 text-xs font-semibold text-muted shadow-soft transition hover:border-mint hover:text-mint"
+            aria-label="Copy cover letter"
+          >
+            {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+            {copied ? "Copied" : "Copy"}
+          </motion.button>
+        ) : null}
+      </div>
       <MarkdownText content={content} />
     </div>
   );

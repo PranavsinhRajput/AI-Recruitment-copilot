@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { FileText, HelpCircle, Wand2 } from "lucide-react";
 import { api } from "./api/client";
@@ -20,6 +20,10 @@ const pageMotion = {
 
 export default function App() {
   const [activeSection, setActiveSection] = useState("upload");
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [isDesktopSidebarCollapsed, setIsDesktopSidebarCollapsed] = useState(() => {
+    return window.localStorage.getItem("ai-recruitment-sidebar-collapsed") === "true";
+  });
   const { resumeText, jdText } = useUploadState();
 
   useEffect(() => {
@@ -30,6 +34,22 @@ export default function App() {
 
     return () => window.clearInterval(intervalId);
   }, []);
+
+  useEffect(() => {
+    window.localStorage.setItem(
+      "ai-recruitment-sidebar-collapsed",
+      String(isDesktopSidebarCollapsed),
+    );
+  }, [isDesktopSidebarCollapsed]);
+
+  function handleMenuClick() {
+    setIsMobileSidebarOpen((current) => !current);
+  }
+
+  function handleMobileSelect(sectionId) {
+    setActiveSection(sectionId);
+    setIsMobileSidebarOpen(false);
+  }
 
   function renderSection() {
     switch (activeSection) {
@@ -95,11 +115,50 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-app text-ink transition-colors">
-      <Navbar />
-      <div className="flex min-h-[calc(100vh-5.5rem)]">
-        <Sidebar activeSection={activeSection} onSelect={setActiveSection} />
-        <main className="min-w-0 flex-1 px-8 py-8">
+    <div className="h-screen overflow-hidden bg-app pt-20 text-ink transition-colors">
+      <Navbar onMenuClick={handleMenuClick} />
+
+      <AnimatePresence>
+        {isMobileSidebarOpen ? (
+          <Fragment key="mobile-sidebar">
+            <motion.button
+              type="button"
+              aria-label="Close sidebar"
+              className="fixed inset-x-0 bottom-0 top-20 z-30 bg-black/45 backdrop-blur-[2px] lg:hidden"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.18 }}
+              onClick={() => setIsMobileSidebarOpen(false)}
+            />
+            <motion.div
+              className="fixed bottom-0 left-0 top-20 z-40 w-[min(20rem,calc(100vw-1rem))] lg:hidden"
+              initial={{ x: "-100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "-100%" }}
+              transition={{ duration: 0.24, ease: "easeOut" }}
+            >
+              <Sidebar activeSection={activeSection} mode="mobile" onSelect={handleMobileSelect} />
+            </motion.div>
+          </Fragment>
+        ) : null}
+      </AnimatePresence>
+
+      <div className="flex h-[calc(100vh-5rem)] min-h-0">
+        <motion.div
+          className="hidden h-full shrink-0 lg:block"
+          animate={{ width: isDesktopSidebarCollapsed ? 80 : 288 }}
+          transition={{ duration: 0.24, ease: "easeOut" }}
+        >
+          <Sidebar
+            activeSection={activeSection}
+            collapsed={isDesktopSidebarCollapsed}
+            onToggleCollapse={() => setIsDesktopSidebarCollapsed((current) => !current)}
+            onSelect={setActiveSection}
+          />
+        </motion.div>
+
+        <main className="min-w-0 flex-1 overflow-y-auto px-4 py-5 sm:px-6 sm:py-7 lg:px-8 lg:py-8">
           <AnimatePresence mode="wait">
             <motion.div key={activeSection} {...pageMotion}>
               {renderSection()}
