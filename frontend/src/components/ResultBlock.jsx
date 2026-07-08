@@ -22,7 +22,7 @@ export function ResultBlock({ title, content, copyable = false }) {
             whileHover={{ scale: 1.04 }}
             whileTap={{ scale: 0.94 }}
             className="inline-flex min-h-9 items-center gap-2 rounded-md border border-line bg-elevated px-3 text-xs font-semibold text-muted shadow-soft transition hover:border-mint hover:text-mint"
-            aria-label="Copy cover letter"
+            aria-label={`Copy ${title}`}
           >
             {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
             {copied ? "Copied" : "Copy"}

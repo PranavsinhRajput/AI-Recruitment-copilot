@@ -36,7 +36,11 @@ export function GeneratedTextView({
       {error ? <p className="mt-5 rounded-md bg-rose-50 p-3 text-sm text-rose-800">{error}</p> : null}
       {result ? (
         <div className="mt-7">
-          <ResultBlock title={resultTitle} content={result} copyable={cacheKey === "cover-letter"} />
+          <ResultBlock
+            title={resultTitle}
+            content={result}
+            copyable={cacheKey === "cover-letter" || cacheKey === "interview-questions"}
+          />
         </div>
       ) : null}
     </div>

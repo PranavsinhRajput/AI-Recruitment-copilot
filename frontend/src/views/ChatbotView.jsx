@@ -6,14 +6,25 @@ import { ResultBlock } from "../components/ResultBlock";
 import { useAsyncAction } from "../hooks/useAsyncAction";
 import { useUploadState } from "../state/UploadContext";
 
+const MAX_QUERY_CHARACTERS = 200;
+
 export function ChatbotView() {
   const { resumeText, jdText, atsResult, featureResults, setFeatureResult } = useUploadState();
   const [query, setQuery] = useState("");
   const answer = featureResults.chatbot ?? "";
   const { loading, error, run } = useAsyncAction();
+  const characterCount = query.length;
+  const isAtLimit = characterCount >= MAX_QUERY_CHARACTERS;
+
+  function handleQueryChange(event) {
+    const nextQuery = event.target.value;
+    setQuery(nextQuery.slice(0, MAX_QUERY_CHARACTERS));
+  }
 
   async function handleSubmit(event) {
     event.preventDefault();
+    if (!query.trim() || characterCount > MAX_QUERY_CHARACTERS) return;
+
     const response = await run(() =>
       api.askChatbot(query, resumeText, jdText, atsResult?.missing_skills ?? []),
     );
@@ -32,10 +43,23 @@ export function ChatbotView() {
         <label className="text-sm font-semibold text-ink">Question</label>
         <textarea
           value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          className="mt-3 h-32 w-full resize-none rounded-md border border-line bg-elevated p-3 text-sm leading-6 text-ink outline-none transition placeholder:text-muted/65 focus:border-mint focus:ring-2 focus:ring-mint/20"
+          onChange={handleQueryChange}
+          className={`mt-3 h-32 w-full resize-none rounded-md border bg-elevated p-3 text-sm leading-6 text-ink outline-none transition placeholder:text-muted/65 focus:ring-2 ${
+            isAtLimit
+              ? "border-orange-400 focus:border-orange-500 focus:ring-orange-500/20"
+              : "border-line focus:border-mint focus:ring-mint/20"
+          }`}
           placeholder="Ask about your resume, this JD, or the next best move..."
+          maxLength={MAX_QUERY_CHARACTERS}
         />
+        <div className="mt-2 flex items-center justify-between gap-3 text-xs">
+          <p className={isAtLimit ? "font-semibold text-mint" : "text-muted"}>
+            {}
+          </p>
+          <p className="text-muted">
+            {isAtLimit ? "Character limit reached" : `${characterCount}/${MAX_QUERY_CHARACTERS} `}
+          </p>
+        </div>
         <div className="mt-4">
           <ActionButton type="submit" disabled={loading || !query.trim()}>
             {loading ? <Bot className="h-4 w-4 animate-pulse" /> : <Send className="h-4 w-4" />}

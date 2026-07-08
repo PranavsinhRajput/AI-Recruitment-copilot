@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { FileUp, Save } from "lucide-react";
-import { motion } from "framer-motion";
+import { CheckCircle2, FileUp, Save } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 import { api } from "../api/client";
 import { ActionButton } from "../components/ActionButton";
 import { useUploadState } from "../state/UploadContext";
@@ -11,6 +11,15 @@ export function UploadView() {
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(null);
+  const [toast, setToast] = useState(null);
+
+  function showToast(message) {
+    const id = Date.now();
+    setToast({ id, message });
+    window.setTimeout(() => {
+      setToast((current) => (current?.id === id ? null : current));
+    }, 3200);
+  }
 
   async function handleResume(event) {
     const file = event.target.files?.[0];
@@ -22,6 +31,7 @@ export function UploadView() {
       const response = await api.uploadResume(file);
       setResume(response.filename, response.resumeText);
       setStatus(`Resume processed: ${response.characters.toLocaleString()} characters extracted.`);
+      showToast("Resume uploaded successfully.");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Resume upload failed.");
     } finally {
@@ -38,6 +48,7 @@ export function UploadView() {
       const response = await api.saveJobDescription(jdDraft);
       setJobDescription(response.jdText);
       setStatus(`Job description saved: ${response.characters.toLocaleString()} characters.`);
+      showToast("Job description saved successfully.");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Job description save failed.");
     } finally {
@@ -47,6 +58,24 @@ export function UploadView() {
 
   return (
     <div className="max-w-5xl">
+      <AnimatePresence>
+        {toast ? (
+          <motion.div
+            key={toast.id}
+            initial={{ opacity: 0, y: -10, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -10, scale: 0.98 }}
+            transition={{ duration: 0.18, ease: "easeOut" }}
+            className="fixed right-4 top-24 z-50 flex max-w-[calc(100vw-2rem)] items-center gap-3 rounded-md border border-line bg-panel px-4 py-3 text-sm font-semibold text-ink shadow-soft sm:right-6"
+            role="status"
+            aria-live="polite"
+          >
+            <CheckCircle2 className="h-5 w-5 shrink-0 text-mint" />
+            <span>{toast.message}</span>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+
       <p className="text-sm font-semibold uppercase tracking-widest text-mint">Start here</p>
       <h2 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">Upload Resume and Job Description</h2>
       <p className="mt-3 max-w-2xl text-muted">
