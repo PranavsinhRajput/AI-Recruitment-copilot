@@ -69,10 +69,10 @@ export const api = {
       body: JSON.stringify({ resumeText, jdText }),
     });
   },
-  generateRoadmap(missingSkills) {
+  generateRoadmap(missingSkills, days) {
     return request("/api/roadmap", {
       method: "POST",
-      body: JSON.stringify({ missingSkills }),
+      body: JSON.stringify({ missingSkills, days }),
     });
   },
   askChatbot(query, resumeText, jdText, missingSkills) {

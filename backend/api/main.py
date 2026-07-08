@@ -48,6 +48,7 @@ class ResumeTextRequest(BaseModel):
 
 class RoadmapRequest(BaseModel):
     missingSkills: list[str]
+    days: int = 30
 
 
 class ChatRequest(BaseModel):
@@ -144,7 +145,9 @@ def interview_questions(payload: TextPairRequest) -> dict[str, str]:
 def roadmap(payload: RoadmapRequest) -> dict[str, str]:
     if not payload.missingSkills:
         raise HTTPException(status_code=400, detail="Missing skills are required.")
-    return {"roadmap": generate_roadmap(payload.missingSkills)}
+    if payload.days < 1 or payload.days > 30:
+        raise HTTPException(status_code=400, detail="Roadmap duration must be between 1 and 30 days.")
+    return {"roadmap": generate_roadmap(payload.missingSkills, payload.days)}
 
 
 @app.post("/api/chat")
