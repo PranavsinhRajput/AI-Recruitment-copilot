@@ -39,7 +39,10 @@ Rules:
 {format_instruction}"""
     response = client.chat.completions.create(
         model="openai/gpt-oss-120b",
-        messages=[{"role": "user", "content": prompt}]
+        messages=[
+            {"role": "system", "content": "You are a concise assistant. Never use markdown tables, headers, or emojis in your responses unless explicitly asked. Respond in plain text or simple numbered/bulleted lists only."},
+            {"role": "user", "content": prompt}
+        ]
     )
     return response.choices[0].message.content.strip()
 
@@ -52,6 +55,9 @@ Job Description: {jd_text}
 Return as a numbered list."""
     response = client.chat.completions.create(
         model="openai/gpt-oss-120b",
-        messages=[{"role": "user", "content": prompt}]
+        messages=[
+            {"role": "system", "content": "You are a concise assistant. Never use markdown tables, headers, or emojis in your responses unless explicitly asked. Respond in plain text or simple numbered/bulleted lists only."},
+            {"role": "user", "content": prompt}
+        ]
     )
     return response.choices[0].message.content.strip()

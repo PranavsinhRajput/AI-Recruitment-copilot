@@ -15,6 +15,9 @@ Analyze this resume and provide:
 Resume: {resume_text}"""
     response = client.chat.completions.create(
         model="openai/gpt-oss-120b",
-        messages=[{"role": "user", "content": prompt}]
+        messages=[
+            {"role": "system", "content": "You are a concise assistant. Never use markdown tables, headers, or emojis in your responses unless explicitly asked. Respond in plain text or simple numbered/bulleted lists only."},
+            {"role": "user", "content": prompt}
+        ]
     )
     return response.choices[0].message.content.strip()
