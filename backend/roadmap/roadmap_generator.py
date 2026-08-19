@@ -38,7 +38,7 @@ Rules:
 
 {format_instruction}"""
     response = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
+        model="openai/gpt-oss-120b",
         messages=[{"role": "user", "content": prompt}]
     )
     return response.choices[0].message.content.strip()
@@ -51,7 +51,7 @@ Resume: {resume_text}
 Job Description: {jd_text}
 Return as a numbered list."""
     response = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
+        model="openai/gpt-oss-120b",
         messages=[{"role": "user", "content": prompt}]
     )
     return response.choices[0].message.content.strip()
